@@ -41,6 +41,7 @@ var whenClientJSLoaded = function() {
     
     $.ajax({
       type: "POST",
+      crossDomain: true,
       url: "http://34.248.54.91/predict",
       data: "[{'Age': 20, 'Sex': 'female', 'Embarked': 'S'}]", //String(JSON.stringify(data))
       success: POSTSuccess,
