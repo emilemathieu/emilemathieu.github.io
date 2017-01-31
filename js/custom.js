@@ -47,7 +47,8 @@ var whenClientJSLoaded = function() {
       type: "PUT",
       // url: "http://0.0.0.0:80/data",
       url: "http://34.248.54.91:80/data",
-      data: String(JSON.stringify(data)),
+      contentType: "application/json",
+      data: JSON.stringify(data),
       success: POSTSuccess,
       //dataType: dataType //xml, json, script, text, html
       dataType: "json"
