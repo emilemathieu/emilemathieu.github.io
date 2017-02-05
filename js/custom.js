@@ -1,5 +1,11 @@
 (function($) {
 
+if (window.location.protocol == "file:") {
+  URL = "http://ml-infra.dev/"; // Dev  
+} else {
+  URL = "http://34.250.87.12/"; // Prod
+}
+
 function loadScript(url, callback)
 {
     // Adding the script tag to the head as suggested before
@@ -39,14 +45,13 @@ var whenClientJSLoaded = function() {
     var isFlash = client.isFlash(); // Check For Flash
     var isSilverlight = client.isSilverlight(); // Check For Silverlight
 
-    var data = {fingerprint, OS, language, browser, browserVersion, timeZone, currentResolution, colorDepth,
-      isJava, isFlash, isSilverlight};
-    console.log(data);
+    var data = [{fingerprint, OS, language, browser, browserVersion, timeZone, currentResolution, colorDepth,
+      isJava, isFlash, isSilverlight}];
     
     $.ajax({
-      type: "PUT",
+      type: "POST",
       // url: "http://0.0.0.0:80/data",
-      url: "http://34.248.54.91:80/data",
+      url: URL + "predict",
       contentType: "application/json",
       data: JSON.stringify(data),
       success: POSTSuccess,
@@ -55,13 +60,13 @@ var whenClientJSLoaded = function() {
     });
 
     $('#target').on("click",function(){
-      console.log('send Works page clicked')
-      var data = {fingerprint: fingerprint, worksClicked: 1}
+      var data = [{fingerprint: fingerprint, worksClicked: 1}];
       
       $.ajax({
       type: "PUT",
-      url: "http://0.0.0.0:80/click",
-      data: String(JSON.stringify(data)),
+      url: URL + "click",
+      contentType: "application/json",
+      data: JSON.stringify(data),
       // success: POSTSuccess,
       dataType: "json"
     });
