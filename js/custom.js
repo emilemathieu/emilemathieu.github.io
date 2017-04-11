@@ -25,7 +25,6 @@ function loadScript(url, callback)
 
 var POSTSuccess = function(data) {
 
-console.log("POSTSuccess");
 console.log(data);
 
 }
