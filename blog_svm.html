@@ -21,7 +21,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/skel/2.2.1/skel.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/skel-layers/2.0.2/skel-layers.min.js"></script>
         <script src="js/init.js"></script>
-        
         <script>
           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -38,6 +37,7 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skel/2.2.1/skel.css" />
             <link rel="stylesheet" href="css/style.css" />
             <link rel="stylesheet" href="css/style-xlarge.css" />
+            <link rel="stylesheet" href="https://assets-cdn.github.com/assets/gist-embed-9f0a4ad9c85ca776e669003688baa9d55f9db315562ce4d231d37dab2714c70a.css">
         </noscript>
         <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <!-- For offline development: -->
@@ -91,7 +91,7 @@
 
                     <header class="major special">
                         <h2>An efficient soft-margin kernel SVM implementation in Python</h2>
-                        <p>Mars 17th, 2017</p>
+                        <p>April 11th, 2017</p>
                     </header>
 
                     <p>
@@ -109,21 +109,14 @@
                         </div>
                     </p>
 
-                    <h3>Dropout and Deep models</h3>
+                    
                     <p style="display:none">
                     $
                     \newcommand{\R}{\mathbb{R}}
                     \newcommand{\N}{\mathcal{N}}
-                    \newcommand{\cL}{\mathcal{L}}
-                    \newcommand{\cO}{\mathcal{O}}
                     \newcommand{\svert}{~|~}
-                    \newcommand{\td}{\text{d}}
                     \newcommand{\f}{\mathbf{f}}
                     \newcommand{\x}{\mathbf{x}}
-                    \newcommand{\Bb}{\mathbf{b}}
-                    \newcommand{\sBb}{\mathtt{b}}
-                    \newcommand{\bx}{\overline{\x}}
-                    \newcommand{\bb}{\overline{b}}
                     \newcommand{\y}{\mathbf{y}}
                     \newcommand{\z}{\mathbf{z}}
                     \newcommand{\w}{\mathbf{w}}
@@ -132,83 +125,61 @@
                     \newcommand{\m}{\mathbf{m}}
                     \newcommand{\ls}{\mathbf{l}}
                     \newcommand{\bL}{\mathbf{L}}
-                    \newcommand{\A}{\mathbf{A}}
                     \newcommand{\X}{\mathbf{X}}
                     \newcommand{\Y}{\mathbf{Y}}
-                    \newcommand{\F}{\mathbf{F}}
-                    \newcommand{\I}{\mathbf{I}}
-                    \newcommand{\M}{\mathbf{M}}
                     \newcommand{\p}{\mathbf{p}}
-                    \newcommand{\bp}{\overline{\p}}
-                    \newcommand{\bz}{\mathbf{0}}
                     \newcommand{\bepsilon}{\text{$\epsilon$}}
                     \newcommand{\bgamma}{\text{$\gamma$}}
-                    \newcommand{\s}{\mathbf{s}}
-                    \newcommand{\Unif}{\text{Unif}}
-                    \newcommand{\bo}{\text{$\omega$}}
-                    \newcommand{\bsigma}{s}
-                    \newcommand{\bSigma}{\text{$\Sigma$}}
-                    \newcommand{\bmu}{\text{$\mu$}}
-                    \newcommand{\bphi}{\text{$\phi$}}
                     \newcommand{\K}{\mathbf{K}}
-                    \newcommand{\Kh}{\widehat{\mathbf{K}}}
-                    \newcommand{\Cov}{\text{Cov}}
-                    \newcommand{\Var}{\text{Var}}
-                    \newcommand{\tr}{\text{tr}}
-                    \newcommand{\tdet}{\text{det}}
                     \newcommand{\diag}{\text{diag}}
-                    \newcommand{\KL}{\text{KL}}
-                    \newcommand{\ind}{\mathds{1}}
-                    \newcommand{\bc}{\mathbf{c}}
-                    \newcommand{\reg}{\eta}
-                    \newcommand{\wd}{\lambda}
                     \newcommand{\argmin}{\text{argmin}}
                     $
                     </p>
-                    <p>Let's go over the dropout network model quickly for a <i>single hidden layer</i> and the task of regression. We denote by $\W_1, \W_2$ the weight matrices connecting the first layer to the hidden layer and connecting the hidden layer to the output layer respectively. These linearly transform the layers' inputs before applying some element-wise non-linearity $\sigma(\cdot)$.
-                    We denote by $\Bb$ the biases by which we shift the input of the non-linearity. 
-                    We assume the model outputs $D$ dimensional vectors while its input is $Q$ dimensional vectors, with $K$ hidden units. We thus have $\W_1$ is a $Q \times K$ matrix, $\W_2$ is a $K \times D$ matrix, and $\Bb$ is a $K$ dimensional vector. A standard network would output $\widehat{\y} = \sigma(\x \W_1 + \Bb) \W_2$ given some input $\x$.</p>
-                    <p>Dropout is a technique used to avoid over-fitting in these simple networks &ndash; a situation where the model can't generalise well from its training data to the test data. It was introduced several years ago by <a href="http://arxiv.org/pdf/1207.0580.pdf" target="_blank">Hinton et al.</a> and studied more extensively in (<a href="http://jmlr.org/papers/v15/srivastava14a.html" target="_blank">Srivastava et al.</a>). To use dropout we sample two binary vectors $\sBb_1, \sBb_2$ of dimensions $Q$ and $K$ respectively. The elements of vector $\sBb_i$ take value 1 with probability $0 \le p_i \le 1$ for $i = 1,2$. Given an input $\x$, we set $1 - p_1$ proportion of the elements of the input to zero: $\x \sBb_1$ (to keep notation clean we will write $\sBb_1$ when we mean $\diag(\sBb_1)$ with the $\diag(\cdot)$ operator mapping a vector to a diagonal matrix whose diagonal is the elements of the vector).
-                    The output of the first layer is given by $\sigma(\x \sBb_1 \W_1 + \Bb)$, in which we randomly set $1 - p_2$ proportion of the elements to zero, and linearly transform to give the dropout model's output $\widehat{\y} = \sigma(\x \sBb_1 \W_1 + \Bb) \sBb_2 \W_2$. 
-                    We repeat this for multiple layers. </p>
+                    <p>In this short tutorial, I will present support vector machine (SVM) methods: its mathematical formulation along with an efficient implementation. Python's code can be found in full on <a href="https://github.com/emilemathieu/ImageClassificationChallenge/tree/master/code/mllib/svm" target="_blank" >my github page</a>. This tutorial rely heavily on <a href="https://www.csie.ntu.edu.tw/~cjlin/papers/bottou_lin.pdf" target="_blank" >Support Vector Machine Solvers</a> from Léon Bottou & Chih jen Lin, and <a href="http://www.csie.ntu.edu.tw/~cjlin/papers/libsvm.pdf" target="_blank" >LIBSVM: A Library for Support Vector Machines</a> from Chih-Chung Chang & Chih-Jen Lin. It naturally follows from this <a href="http://tullo.ch/articles/svm-py/" target="_blank" >blog post on SVM</a>.</p>
+
+                    <h3>Support Vector Machines</h3>
+
                     <p>
-                        <!-- <div class="image captioned row 100% uniform special">
-                            <div class="3u 0u$(medium)"></div>
-                            <div class="6u 12u$(medium)"><span class="image captioned fit"><img src="blog_images/do_net.jpg" alt=""></span></div>
-                            <div class="12u"><h5>Dropout is applied by simply dropping-out units at random with a certain probability during training.</h5></div>
-                        </div> -->
+                    <div><span class="image captioned right" style="max-width:250px"><img src="Images/blog/optimal-hyperplane.png" alt=""><h5>Figure 1: <i>An optimal hyperplane.</i></h5></span></div>
+                    <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" >Support vector machines</a> are supervised learning models for classification or regression which are defined by supporting hyperplanes.
+                    SMVs are widely used in practice since they have been studied in depth and have good performance (for relatively small datasets).
+                    Given labeled training data, the algorithm outputs an optimal hyperplane which categorizes new examples.
+                    <!-- This hyperplane is optimal in the sense that if the data is separable, it is the one with the maximum margin as shown on the Figure 1. -->
                     </p>
-                    <p>To use the network for regression we might use the euclidean loss,
-                    $
-                    E = \frac{1}{2N}
-                    \sum_{n=1}^N ||\y_n - \widehat{\y}_n||^2_2
-                    $
-                    where $\{\y_1, ..., \y_N\}$ are $N$ observed outputs, and $\{\widehat{\y}_1, ..., \widehat{\y}_N\}$ are the outputs of the model with corresponding observed inputs $\{ \x_1, ..., \x_N \}$. During optimisation a regularisation term is often added.
-                    We often use $L_2$ regularisation weighted by some weight decay $\wd$ (alternatively, the derivatives might be scaled), resulting in a minimisation objective (often referred to as cost),
-                    \begin{align*} \label{eq:L:dropout}
-                    \cL_{\text{dropout}} := E + \wd \big( &||\W_1||^2_2 + ||\W_2||^2_2 \notag\\
-                    &+ ||\Bb||^2_2 \big).
-                    \end{align*}
-                    Note that optimising this objective is equivalent to scaling the derivatives of the cost by the learning rate and the derivatives of the regularisation by the weight decay after back-propagation, and this is how this optimisation is often implemented.
-                    We sample new realisations for the binary vectors $\sBb_i$ for every input point and every forward pass thorough the model (evaluating the model's output), and use the same values in the backward pass (propagating the derivatives to the parameters to be optimised $\W_1,\W_2,\Bb$). The dropped weights $\sBb_1\W_1$ and $\sBb_2\W_2$ are often scaled by $\frac{1}{p_i}$ to maintain constant output magnitude. At test time we do not sample any variables and simply use the full weights matrices $\W_1,\W_2,\Bb$. 
-                    This model can easily be generalised to multiple layers and classification.
-                    There are many open source packages implementing this model (such as <a href="http://deeplearning.net/software/pylearn2/" target="_blank">Pylearn2</a> and <a href="http://caffe.berkeleyvision.org/" target="_blank">Caffe</a>). <!-- We'll use SnippyHolloW's <a href="https://github.com/SnippyHolloW/DL4H/blob/master/dnn.py" target="_blank">simple implementation</a> below. --></p>
+
+                    <p>
+                    Separable: Hard Margin
+                    $$ \min _{\w, b} \mathcal{P}(\w, b) = \cfrac{1}{2} \w^2  $$
+                    $$ \text{subject to} \  \forall i \ \ y_i(\w^T \phi(\x_i)+b) \ge 1 $$
+                    </p>
+
+                    <script src="https://gist.github.com/emilemathieu/c8873e7a3f1aca7d123bea7bc9305627.js"></script>
+
+                    <p>
+                    Non-separable: Soft Margin
+                    Mathematically, this is defined as the following optimization problem.
+                     $$ \min _{\w, b, \mathbf{\xi}} \mathcal{P}(\w, b, \mathbf{\xi}) = \cfrac{1}{2} \w^2 + C \sum_{i=1}^n \xi_i $$
+                    $$ \text{subject to} \begin{cases} \forall i \quad y_i(\w^T \phi(\x_i)+b) \ge 1 - \xi_i \\ 
+                    \forall i \quad \xi_i \ge 0 \end{cases} $$
+
+                    The dual
+                    $$ \max _{\alpha} \mathcal{D}(\alpha) = \sum_{i=1}^n \alpha_i - \cfrac{1}{2} \sum_{i,j=1}^n y_i \alpha_i y_j \alpha_j \mathbf{K}(\x_i, \x_j) $$
+                    $$ \text{subject to} \begin{cases} \forall i \quad 0 \le \alpha_i \le C \\ 
+                    \sum_i y_i\alpha_i = 0 \end{cases} $$
+
+                    </p>
+                    <!-- <code data-gist-id="https://gist.github.com/emilemathieu/c8873e7a3f1aca7d123bea7bc9305627.js"></code> -->
+
+                    <h3>The Sequential Minimal Optimization (SMO) algorithm</h3>
+
+                    <script src="https://gist.github.com/emilemathieu/10f0b4a596c5ad571d8356f426b128a9.js"></script>
+
+                    <script src="https://gist.github.com/emilemathieu/026df8545b880e7814ddc081a55a0e70.js"></script>
 
 
-                    <p>As you'd expect, it is as easy to implement these two equations. <!--<a>Here</a><!-- ToDo -> you'll find SnippyHolloW's adapted Python code to generate samples from the network at test time. We then--> We can use the following few lines of Python code to get the predictive mean and uncertainty:
-                    <div class="row 100% uniform">
-                        <div class="2u 0u$(medium)"></div><div class="8u 12u$(medium)">
-                            <span class="image captioned fit special"><pre><code>probs = []
-for _ in xrange(T):
-    probs += [model.output_probs(input_x)]
-predictive_mean = numpy.mean(prob, axis=0)
-predictive_variance = numpy.var(prob, axis=0)
-tau = l**2 * (1 - model.p) / (2 * N * model.weight_decay)
-predictive_variance += tau**-1
-</code></pre><h5>Python code to obtain predictive mean and uncertainty from dropout networks</h5></span>
-                        </div><div class="2u 0u$(medium)"></div>
-                    </div>
-                    </p>
+                    <h3>Demonstration</h3>
+
+
 
                     <h2>Discussion</h2>
                     <p>
