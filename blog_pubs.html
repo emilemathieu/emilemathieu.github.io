@@ -41,9 +41,15 @@
         <style type="text/css">
             canvas { border: 1px solid white; }
             div.pub {display: inline-block; margin-bottom: 50px; width: 100%; position:relative}
-            img.left {float: left; max-height: 250px; margin-right: 20px}
-            img.right {float: right; max-height: 250px; margin-left: 20px}
-            i.address {bottom: 0; position: absolute}
+            img.left {float: left; max-width: 90%; max-height: 250px; margin-right: 20px}
+            img.right {float: right; max-width: 90%; max-height: 250px; margin-left: 20px}
+            i.address {/*bottom: 0; position: absolute*/}
+
+            @media all and (max-width: 1024px) {
+              /* put your css styles in here */
+            img.left {display: block; margin: auto; margin-bottom: 20px; margin-top: 30px; float: none;}
+            img.right {display: block; margin: auto; margin-bottom: 20px; margin-top: 30px; float: none;}
+            }
 
         </style>
         <script>
@@ -156,8 +162,8 @@
                     It has been frequented by many famous personalities, such as Bill Clinton who infamously <i>did not inhale</i> marijuana during an event there.
                     After exams you may also come across students celebrating by trying to beat the former Australian Prime Minister Bob Hawke at drinking a <a href="https://en.wikipedia.org/wiki/Yard_of_ale">Yard of Ale </a> - who set a Guinness World Record in 1963 by drinking 1.4L in 11s.
                     </p>
-                    <br>
-                    <i class="address">4-5 Bath Pl, Oxford OX1 3SU. <br><a href="https://www.greeneking-pubs.co.uk/pubs/oxfordshire/turf-tavern">https://www.greeneking-pubs.co.uk.</a></i>
+                    
+                    <i class="address">4-5 Bath Pl, Oxford OX1 3SU. <a href="https://www.greeneking-pubs.co.uk/pubs/oxfordshire/turf-tavern">https://www.greeneking-pubs.co.uk.</a></i>
                     </div>
 
                     <div class="pub">
@@ -172,7 +178,7 @@
                     <img class="right" src="Images/blog/pubs/angel3.jpg" alt="">
                     <p>
                     The Angel & Greyhound is situated between St Clement's street and the eponymous meadow. It has a front terrace on the former side and a charming patio garden (with a véranda) on the latter side. A good selection of beers, wine and dishes is offered. It's a great place to play pool and board games with friends.</p>
-                    <i class="address">30 St Clement's St, Oxford OX4 1AB.<br><a href="angelandgreyhound.co.uk">angelandgreyhound.co.uk</a></i>
+                    <i class="address">30 St Clement's St, Oxford OX4 1AB. <a href="angelandgreyhound.co.uk">angelandgreyhound.co.uk</a></i>
                     </div>
 
                     <div class="pub">
@@ -210,7 +216,7 @@
                     Just over a mile south of Oxford City Centre, it's huge garden will delight everyone, from families to lonely readers.
                     I highly recommend the weekly gypsy and swing jazz concerts on most Sunday mid-afternoon.
                     Seating next to the fireplace while reading a great novel and drinking a pint of ale is the best way to spend a rainy British afternoon!</p>
-                    <i class="address">Haystacks Corner, The Towing Path, Iffley Lock, Oxford OX4 4EL.<br> <a href="www.theisisfarmhouse.co.uk/">www.theisisfarmhouse.co.uk.</a></i>
+                    <i class="address">Haystacks Corner, The Towing Path, Iffley Lock, Oxford OX4 4EL. <a href="www.theisisfarmhouse.co.uk/">www.theisisfarmhouse.co.uk.</a></i>
                     </div>
 
                     <div class="pub">
