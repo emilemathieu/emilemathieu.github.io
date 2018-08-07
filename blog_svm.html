@@ -136,7 +136,7 @@
                     </p>
                     <p>This short tutorial aims at introducing support vector machine (SVM) methods from its mathematical formulation along with an efficient implementation in a few lines of Python! Do play with the full code hosted on <a href="https://github.com/emilemathieu/ImageClassificationChallenge/tree/master/code/mllib/svm" target="_blank" >my github page</a>. I strongly recommend reading <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> (from L. Bottou & C-J. Lin) for an in-depth cover of the topic, along with the <a href="http://www.csie.ntu.edu.tw/~cjlin/papers/libsvm.pdf" target="_blank" >LIBSVM</a> library. The present post naturally follows this <a href="http://tullo.ch/articles/svm-py/" target="_blank" >introduction on SVMs</a>.</p>
 
-                    <h2>The model: Support Vector Machines</h2>
+                    <h2>Support Vector Machines - The model</h2>
 
                     <p>
                     <div><span class="image captioned right" style="max-width:300px"><img src="Images/blog/svm/optimal-hyperplane.png" alt=""><h5>Figure 1: <i>An optimal hyperplane.</i></h5></span></div>
@@ -195,7 +195,7 @@
 
                     <h2>How to fit the model ?</h2>
                     <p>Once one have such a mathematical representation of the model through an optimisation problem, the next natural question arising is <i> how should we solve this problem (once we know it is well-posed) ?</i>
-                    The SVM solution is the optimum of a well defined convex optimization problem (\ref{eq:hard_primal}).
+                    The SVM solution is the optimum of a well defined convex optimisation problem (\ref{eq:hard_primal}).
                     Since the optimum does not depend on the manner it has been calculated, the choice of a particular optimisation algorithm can be made on the sole basis of its computational requirements.
                     <!-- The Python's method <i>_compute_weights</i> can therefore be implemented in several ways, and we'll present an efficient implementation. -->
                     </p>
@@ -215,13 +215,15 @@
                     \end{equation} 
 
                     with $\{\alpha_i\}_{i=1,\dots,n}$ being the dual coefficients to solve and $\mathbf{K}$ being the kernel associated with $\phi$: $\forall i,j \ \ \mathbf{K}(\x_i, \x_j)=\left< \phi(\x_i) , \phi(\x_j)\right>$. That problem is much easier to solve since the constraints are much simpler.
-                    Then, the direction $\w^*$ of the optimal hyperplane is recovered from a solution $\alpha^*$ of the dual optimization problem (\ref{eq:soft_dual}):
+                    Then, the direction $\w^*$ of the optimal hyperplane is recovered from a solution $\alpha^*$ of the dual optimisation problem (\ref{eq:soft_dual}):
                     \begin{equation}
                     \w^* = \sum_{i} \alpha^*_i y_i \phi(\x_i)
                     \end{equation}
 
                     The optimal hyperplane is therefore a weighted combination over the datapoints with non-zero dual coefficient $\alpha^*_i$. Those datapoints are therefore called <i>support vectors</i>, hence <i>«support vector machines»</i>.
-                    <br><br>
+                    </p>
+                    <h3>Quadratic Problem solver</h3>
+                    <p>
                     The SVM optimisation problem (\ref{eq:soft_dual}) is a Quadratic Problem (QP), a well studied class of optimisation problems for which  good libraries has been developed for.
                     This is the approach taken in this <a href="http://tullo.ch/articles/svm-py/">intro on SVM</a>, relying on the Python's quadratic program solver <a href="http://cvxopt.org">cvxopt</a>.
                     <br>
@@ -231,7 +233,7 @@
 
                     </p>
 
-                    <h3>The Sequential Minimal Optimization (SMO) algorithm</h3>
+                    <h3>The Sequential Minimal Optimisation (SMO) algorithm</h3>
                     <p>
                     One way to avoid the inconveniences above-mentioned is to rely on the decomposition method.
                     The idea is to decompose the optimisation problem in a sequence of subproblems where only a subset of coefficients $\alpha_i$, $i \in \mathcal{B}$ need to be optimised, while leaving the remaining coefficients $\alpha_j$, $j \notin \mathcal{B}$ unchanged:
@@ -252,20 +254,20 @@
                     \sum_i y_i\alpha'_i = 0 \end{cases}
                     \end{equation} -->
 
-                    One need to decide how to choose the working set $\mathcal{B}$ for each subproblem. The simplest is to always use the smallest possible working set size, that is, two elements (such as the <i>maximum violating pair scheme</i>, which is discussed in Section 7.2 in <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> ). The equality constraint $\sum_i y_i \alpha^'_i = 0$ then makes this a <i>one dimensional</i> optimization problem.
+                    One need to decide how to choose the working set $\mathcal{B}$ for each subproblem. The simplest is to always use the smallest possible working set size, that is, two elements (such as the <i>maximum violating pair scheme</i>, which is discussed in Section 7.2 in <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> ). The equality constraint $\sum_i y_i \alpha'_i = 0$ then makes this a <i>one dimensional</i> optimisation problem.
 
                     <br><br>
                     <div><span class="image captioned right" style="max-width:450px"><img src="Images/blog/svm/directon_search.png" alt=""><h5>Figure 2: <i>Direction search - from L. Bottou & C-J. Lin.</i></h5></span></div>
-                    The subproblem optimization can then be achieved by performing successive <i>direction searches</i> along well chosen successive directions.
-                    Such a method seeks to maximizes an optimization problem restricted to the half line ${\mathbf{\alpha} + \lambda \mathbf{u}, \lambda \in \Lambda}$, with $\mathbf{u} = (u_1,\dots,u_n)$ a <i>feasible direction</i> (i.e. can slightly move the point $\mathbf{\alpha}$ along direction $\mathbf{u}$ without violating the constraints).
+                    The subproblem optimisation can then be achieved by performing successive <i>direction searches</i> along well chosen successive directions.
+                    Such a method seeks to maximizes an optimisation problem restricted to the half line ${\mathbf{\alpha} + \lambda \mathbf{u}, \lambda \in \Lambda}$, with $\mathbf{u} = (u_1,\dots,u_n)$ a <i>feasible direction</i> (i.e. can slightly move the point $\mathbf{\alpha}$ along direction $\mathbf{u}$ without violating the constraints).
 
-                    <br>
+                    <br>@
                     The equality constraint (\ref{eq:smo}) restricts $\mathbf{u}$ to the linear subspace $\sum_i y_i u_i = 0$.
                     Each subproblem is therefore solved by performing a search along a direction $\mathbf{u}$ containing only two non zero coefficients: ${u}_i = y_i$ and ${u}_j = −y_j$.
                     
                     <br><br>
                     The set $\Lambda$ of all coefficients $\lambda \ge 0$ is defined such that the point $\mathbf{\alpha} + \lambda \mathbf{u}$ satisfies the constraints. Since the feasible polytope is convex and bounded $\Lambda = [0, \lambda^{\max}]$.
-                    Direction search is expressed by the simple optimization problem
+                    Direction search is expressed by the simple optimisation problem
                     \begin{equation}
                     \lambda^* =  \arg\max_{\lambda \in \Lambda}{\mathcal{D}(\mathbf{\alpha }+ \lambda \mathbf{u})}
                     \end{equation}
