@@ -86,11 +86,11 @@
 
         <!-- uncertainty -->
             <section id="uncertainty" class="wrapper">
-                <div class="container blog" style="max-width: 800px;">
+                <div class="container blog" style="max-width: 1000px;">
 
                     <header class="major special">
                         <h2>An efficient soft-margin kernel SVM implementation in Python</h2>
-                        <p>August 5th, 2018</p>
+                        <p>August 8th, 2018</p>
                     </header>
 
                     <p>
@@ -134,40 +134,43 @@
                     \newcommand{\argmin}{\text{argmin}}
                     $
                     </p>
-                    <p>This short tutorial aims at introducing support vector machine (SVM) methods from its mathematical formulation along with an efficient implementation in a few lines of Python! The full code can be found on <a href="https://github.com/emilemathieu/ImageClassificationChallenge/tree/master/code/mllib/svm" target="_blank" >my github page</a>. I strongly recommend reading <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> (from Léon Bottou & Chih jen Lin) for an in-depth cover of the topic, along with the <a href="http://www.csie.ntu.edu.tw/~cjlin/papers/libsvm.pdf" target="_blank" >LIBSVM</a> library (from Chih-Chung Chang & Chih-Jen Lin). The present post naturally follows this <a href="http://tullo.ch/articles/svm-py/" target="_blank" >introductory blog post on SVM</a>.</p>
+                    <p>This short tutorial aims at introducing support vector machine (SVM) methods from its mathematical formulation along with an efficient implementation in a few lines of Python! Do play with the full code hosted on <a href="https://github.com/emilemathieu/ImageClassificationChallenge/tree/master/code/mllib/svm" target="_blank" >my github page</a>. I strongly recommend reading <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> (from L. Bottou & C-J. Lin) for an in-depth cover of the topic, along with the <a href="http://www.csie.ntu.edu.tw/~cjlin/papers/libsvm.pdf" target="_blank" >LIBSVM</a> library. The present post naturally follows this <a href="http://tullo.ch/articles/svm-py/" target="_blank" >introduction on SVMs</a>.</p>
 
                     <h2>The model: Support Vector Machines</h2>
 
                     <p>
-                    <div><span class="image captioned right" style="max-width:250px"><img src="Images/blog/optimal-hyperplane.png" alt=""><h5>Figure 1: <i>An optimal hyperplane.</i></h5></span></div>
-                    <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" >Support vector machines</a> (SVMs) are supervised learning models for classification (or regression) which are defined by so-called <i>supporting hyperplanes</i>.
+                    <div><span class="image captioned right" style="max-width:300px"><img src="Images/blog/svm/optimal-hyperplane.png" alt=""><h5>Figure 1: <i>An optimal hyperplane.</i></h5></span></div>
+                    <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" >Support vector machines</a> (SVMs) are supervised learning models for classification (or regression) defined by <i>supporting hyperplanes</i>.
                     SVM is one of the most widely used algorithms since it relies on strong theoretical foundations and has good performance in practice.
-                    </p>
-                    <p>
-                     SVMs represent examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on which side of the gap they fall.
+                    <br><br>
+                     As illustrated on Figure 1, SVMs represent examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on which side of the gap they fall.
                     <!-- This hyperplane is optimal in the sense that if the data is separable, it is the one with the maximum margin as shown on the Figure 1. -->
-                    </p>
-                    <p>
-                    Let's consider our dataset to be
-                    \begin{equation}
-                    D = { (\mathbf{x}_{i}, y_{i}), \mathbf{x} \in \mathbb{R}^d, y \in \{ -1, 1 \}
-                    }.
-                    \end{equation}
-                    and the mapping $\phi$, a (possibly) non-linear function used to get features from the datapoints.
+                    <br><br>
+                    Let's consider a dataset
+                    <!-- \begin{equation} -->
+                    $D = { (\mathbf{x}_{i}, y_{i}), \mathbf{x} \in \mathbb{R}^d, y \in \{ -1, 1 \}}$
+                    <!-- \end{equation} -->
+                    , and $\phi$ a feature mapping - a possibly non-linear function used to get features from the datapoints $\{x_i\}$.
                     <br>
-                    The main idea is to find an hyperplane $\w$ separating our dataset and maximising the <i>margin</i> of this hyperplane. This is summed up in the optimisation problem below
+                    The main idea is to find an hyperplane $\w^*$ separating our dataset and maximising the <i>margin</i> of this hyperplane:
+                    <br><br>
                     \begin{equation} \label{eq:hard_objective}
                     \min _{\w, b} \mathcal{P}(\w, b) = \cfrac{1}{2} \w^2
                      \end{equation}
                      \begin{equation} \label{eq:hard_conditions}
                     \text{subject to} \  \forall i \ \ y_i(\w^T \phi(\x_i)+b) \ge 1
                     \end{equation}
-                    The conditions (\ref{eq:hard_conditions}) enforce that datapoints (after being mapped through $\phi$) from the first (respectively second) category lie below (respectively above) the hyperplane $\w$, while the objective (\ref{eq:hard_objective}) measures the <i>margin</i>.
-                    <br><br>
-                    We implicitly made the assumption that the dataset $D$ was <i>separable</i> which means what it intuitively means; that there exists an hyperplane $\w \in \mathbb{R}^d$ such that all points $\{\x_i\}_i$ from the first category $\{-1\}$ lie on one side of the hyperplane (i.e. $\w^T \phi(\x_i)+b \le 1$) and  points $\{\x_i\}_i$ from the second category $\{+1\}$ lie on the other side of the hyperplane (i.e. $\w^T \phi(\x_i)+b \ge 1$).
-                    This formulation is called <i>hard margin</i>, since the margin cannot let some datapoints <i>go through</i>.
-                    This assumption can be relaxed by introducing penalty terms $\xi_i$ (and thus a penalty coefficient $C$) measuring the distance of $\x_i$ from the hyperplane $\w$ when $\x_i$ sits on the wrong side of the hyperplane.
-                    This is formalised as the following constrained optimisation problem:
+                    The conditions (\ref{eq:hard_conditions}) enforce that datapoints (after being mapped through $\phi$) from the first (respectively second) category lie below (respectively above) the hyperplane $\w^*$, while the objective (\ref{eq:hard_objective}) minimises the <i>margin</i> (the distance between the hyperplane $\w^*$ and the closest example).
+                    </p>
+                    <h3> Soft margin</h3>
+                    <p>
+                    We implicitly made the assumption that the dataset $D$ was <i>separable</i> which means what it intuitively means - that there exists an hyperplane $\w^* \in \mathbb{R}^d$ such that all red points  (i.e. $y=-1)$ lie on one side of the hyperplane (i.e. $\w^T \phi(\x_i)+b \le 0$) and blue points (y=$+1)$ lie on the other side of the hyperplane (i.e. $\w^T \phi(\x_i)+b \ge 0$).
+                    This formulation is called <i>hard margin</i>, since the margin cannot let some datapoints <i>go through</i> (all datapoints are well classified).
+                    <br>This assumption can be relaxed by introducing positive slack variables $\mathbf{\xi}=(\xi_1, \dots, \xi_n)$
+                    allowing some examples to violate the margin constraints (\ref{eq:hard_conditions}).
+                    $\xi_i$ are non-zero only if $\x_i$ sits on the wrong side of the hyperplane, and is equal to the distance between $\x_i$ and the hyperplane $\w$.
+                    Then an hyperparameter $C$ controls the compromise between large margins and small margin violations.
+                    <!-- This is formalised as the following constrained optimisation problem: -->
                     </p>
 
                     <!-- <h3>Kernel Trick</h3>
@@ -177,43 +180,122 @@
                     <!-- <h3> Formulation </h3> -->
 
                     <p>
-                    \begin{equation} \min _{\w, b, \mathbf{\xi}} \mathcal{P}(\w, b, \mathbf{\xi}) = \cfrac{1}{2} \w^2 + C \sum_{i=1}^n \xi_i \\
+                    \begin{equation} \label{eq:hard_primal}
+                    \min _{\w, b, \mathbf{\xi}} \mathcal{P}(\w, b, \mathbf{\xi}) = \cfrac{1}{2} \w^2 + C \sum_{i=1}^n \xi_i \\
                     \text{subject to} \begin{cases} \forall i \quad y_i(\w^T \phi(\x_i)+b) \ge 1 - \xi_i \\ 
                     \forall i \quad \xi_i \ge 0 \end{cases}
                     \end{equation}
 
-                    Seeing this problem as a <i>primal</i>, a <i>dual</i> optimisation problem can be derived (see <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf">L. Bottou et al</a> for more details):
-                    \begin{equation} 
-                    \max _{\alpha} \mathcal{D}(\alpha) = \sum_{i=1}^n \alpha_i - \cfrac{1}{2} \sum_{i,j=1}^n y_i \alpha_i y_j \alpha_j \mathbf{K}(\x_i, \x_j) \\
-                    \text{subject to} \begin{cases} \forall i \quad 0 \le \alpha_i \le C \\ 
-                    \sum_i y_i\alpha_i = 0 \end{cases}
-                    \end{equation} 
 
-                    with $\{\alpha_i\}_{i=1,\dots,n}$ being the dual coefficients and $\mathbf{K}$ being the kernel associated with $\phi$: $\forall i,j \ \ \mathbf{K}(\x_i, \x_j)=\left< \phi(\x_i) , \phi(\x_j)\right>$. 
+
                     </p>
-
-                    From a Python's class point of view, an SVM model can be represented via the following attributes and methods:
-                    <script src="https://gist.github.com/emilemathieu/c8873e7a3f1aca7d123bea7bc9305627.js"></script>
 
 
                     <!-- <code data-gist-id="https://gist.github.com/emilemathieu/c8873e7a3f1aca7d123bea7bc9305627.js"></code> -->
 
                     <h2>How to fit the model ?</h2>
-                    <p>Once one have such an mathematical representation of the model through an optimisation problem, the next natural question which arise is: who should we solve this problem (once we know it is well-posed) ?
-                    The SVM solution is the optimum of a well defined convex optimization problem introduced above.
-                    Since the optimum does not depend on the way it has been calculated, the choice of a particular optimisation algorithm can be made on the sole basis of its computational requirements. The Python's method <i>_compute_weights</i> can therefore be implemented in several ways, and we'll present an efficient implementation.
+                    <p>Once one have such a mathematical representation of the model through an optimisation problem, the next natural question arising is <i> how should we solve this problem (once we know it is well-posed) ?</i>
+                    The SVM solution is the optimum of a well defined convex optimization problem (\ref{eq:hard_primal}).
+                    Since the optimum does not depend on the manner it has been calculated, the choice of a particular optimisation algorithm can be made on the sole basis of its computational requirements.
+                    <!-- The Python's method <i>_compute_weights</i> can therefore be implemented in several ways, and we'll present an efficient implementation. -->
+                    </p>
+
+                    <h3>Dual formulation</h3>
+
+                    <p>
+                    Directly solving (\ref{eq:hard_primal}) is difficult because the constraints are quite complex.
+                    A classic move is then to simplify this problem via <i>Lagrangian duality</i> (see <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf">L. Bottou et al</a> for more details), yielding the <i>dual</i> optimisation problem:
+
+                    \begin{equation} \label{eq:soft_dual}
+                    \max _{\alpha} \mathcal{D}(\alpha) = \sum_{i=1}^n \alpha_i - \cfrac{1}{2} \sum_{i,j=1}^n y_i \alpha_i y_j \alpha_j \mathbf{K}(\x_i, \x_j) \\
+                    \end{equation}  
+                    \begin{equation} 
+                    \text{subject to} \begin{cases} \forall i \quad 0 \le \alpha_i \le C \\
+                    \sum_i y_i\alpha_i = 0 \end{cases}
+                    \end{equation} 
+
+                    with $\{\alpha_i\}_{i=1,\dots,n}$ being the dual coefficients to solve and $\mathbf{K}$ being the kernel associated with $\phi$: $\forall i,j \ \ \mathbf{K}(\x_i, \x_j)=\left< \phi(\x_i) , \phi(\x_j)\right>$. That problem is much easier to solve since the constraints are much simpler.
+                    Then, the direction $\w^*$ of the optimal hyperplane is recovered from a solution $\alpha^*$ of the dual optimization problem (\ref{eq:soft_dual}):
+                    \begin{equation}
+                    \w^* = \sum_{i} \alpha^*_i y_i \phi(\x_i)
+                    \end{equation}
+
+                    The optimal hyperplane is therefore a weighted combination over the datapoints with non-zero dual coefficient $\alpha^*_i$. Those datapoints are therefore called <i>support vectors</i>, hence <i>«support vector machines»</i>.
                     <br><br>
-                    The SVM optimisation problem can be cast as an Quadratic Problem (QP), a well studied class of optimisation problems for which  good libraries has been developed for.
+                    The SVM optimisation problem (\ref{eq:soft_dual}) is a Quadratic Problem (QP), a well studied class of optimisation problems for which  good libraries has been developed for.
                     This is the approach taken in this <a href="http://tullo.ch/articles/svm-py/">intro on SVM</a>, relying on the Python's quadratic program solver <a href="http://cvxopt.org">cvxopt</a>.
-                    <br><br>
-                    Yet this approach can be inefficient since such packages were often designed to take advantage of sparsity in the quadratic part of the objective function. Unfortunately, the SVM kernel matrix is rarely sparse but sparsity occurs in the <i>solution</i> of the SVM problem.
-                    Moreover, the specification of a SVM problem rarely fits in memory and generic optimisation packages sometimes make extra work to locate the optimum with high accuracy which is often useless.
                     <br>
-                    Let's then described an algorithm specifically tailored to solve the SVM optimisation problem.
+                    Yet this approach can be inefficient since such packages were often designed to take advantage of sparsity in the quadratic part of the objective function. Unfortunately, the SVM kernel matrix $\mathbf{K}$ is rarely sparse but sparsity occurs in the <i>solution</i> of the SVM problem.
+                    Moreover, the specification of a SVM problem rarely fits in memory and generic optimisation packages sometimes make extra work to locate the optimum with high accuracy which is often useless.
+                    Let's then described an algorithm tailored to efficiently solve that optimisation problem.
+
                     </p>
 
                     <h3>The Sequential Minimal Optimization (SMO) algorithm</h3>
+                    <p>
+                    One way to avoid the inconveniences above-mentioned is to rely on the decomposition method.
+                    The idea is to decompose the optimisation problem in a sequence of subproblems where only a subset of coefficients $\alpha_i$, $i \in \mathcal{B}$ need to be optimised, while leaving the remaining coefficients $\alpha_j$, $j \notin \mathcal{B}$ unchanged:
 
+                    \begin{equation} \label{eq:smo}
+                    \max _{\alpha'} \mathcal{D}(\alpha') = \sum_{i=1}^n \alpha'_i - \cfrac{1}{2} \sum_{i,j=1}^n y_i \alpha'_i y_j \alpha'_j \mathbf{K}(\x_i, \x_j) \\
+                    \text{subject to} \begin{cases} \forall i \notin \mathcal{B}  \quad \alpha'_i=\alpha_i  \\
+                    \forall i \in \mathcal{B} \quad 0 \le \alpha'_i \le C \\
+                    \sum_i y_i\alpha'_i = 0 \end{cases}
+                    \end{equation}
+
+                    <!-- or equivalently
+
+                    \begin{equation}
+                    \max _{\alpha'} \mathcal{D}(\alpha') = \sum_{i=1}^n \alpha'_i - \cfrac{1}{2} \sum_{i,j=1}^n y_i \alpha'_i y_j \alpha'_j \mathbf{K}(\x_i, \x_j) \\
+                    \text{subject to} \begin{cases} \forall i \notin \mathcal{B}  \quad \alpha'_i=\alpha_i  \\
+                    \forall i \in \mathcal{B} \quad 0 \le \alpha'_i \le C \\
+                    \sum_i y_i\alpha'_i = 0 \end{cases}
+                    \end{equation} -->
+
+                    One need to decide how to choose the working set $\mathcal{B}$ for each subproblem. The simplest is to always use the smallest possible working set size, that is, two elements (such as the <i>maximum violating pair scheme</i>, which is discussed in Section 7.2 in <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> ). The equality constraint $\sum_i y_i \alpha^'_i = 0$ then makes this a <i>one dimensional</i> optimization problem.
+
+                    <br><br>
+                    <div><span class="image captioned right" style="max-width:450px"><img src="Images/blog/svm/directon_search.png" alt=""><h5>Figure 2: <i>Direction search - from L. Bottou & C-J. Lin.</i></h5></span></div>
+                    The subproblem optimization can then be achieved by performing successive <i>direction searches</i> along well chosen successive directions.
+                    Such a method seeks to maximizes an optimization problem restricted to the half line ${\mathbf{\alpha} + \lambda \mathbf{u}, \lambda \in \Lambda}$, with $\mathbf{u} = (u_1,\dots,u_n)$ a <i>feasible direction</i> (i.e. can slightly move the point $\mathbf{\alpha}$ along direction $\mathbf{u}$ without violating the constraints).
+
+                    <br>
+                    The equality constraint (\ref{eq:smo}) restricts $\mathbf{u}$ to the linear subspace $\sum_i y_i u_i = 0$.
+                    Each subproblem is therefore solved by performing a search along a direction $\mathbf{u}$ containing only two non zero coefficients: ${u}_i = y_i$ and ${u}_j = −y_j$.
+                    
+                    <br><br>
+                    The set $\Lambda$ of all coefficients $\lambda \ge 0$ is defined such that the point $\mathbf{\alpha} + \lambda \mathbf{u}$ satisfies the constraints. Since the feasible polytope is convex and bounded $\Lambda = [0, \lambda^{\max}]$.
+                    Direction search is expressed by the simple optimization problem
+                    \begin{equation}
+                    \lambda^* =  \arg\max_{\lambda \in \Lambda}{\mathcal{D}(\mathbf{\alpha }+ \lambda \mathbf{u})}
+                    \end{equation}
+
+                    Since the dual objective function is quadratic, $\mathcal{D}(\mathbf{\alpha }+ \lambda \mathbf{u})$ is shaped like a parabola. The location of its maximum $\lambda^+$ is easily computed using Newton’s formula:
+
+                    \begin{equation}
+                    \lambda^+ = \cfrac{ \partial \mathcal{D}(\mathbf{\alpha }+ \lambda \mathbf{u}) / \partial \lambda \ |_{\lambda=0} } {\partial^2 \mathcal{D}(\mathbf{\alpha }+ \lambda \mathbf{u}) / \partial \lambda^2 \ |_{\lambda=0}} = \cfrac{\mathbf{g}^T \mathbf{u}}{\mathbf{u}^T \mathbf{H} \mathbf{u}}
+                    \end{equation}
+                    </p><p>
+                    where vector $\mathbf{g}$ and matrix $\mathbf{H}$ are the gradient and the Hessian of the dual objective function $\mathcal{D}(\mathbf{\alpha})$:
+
+                    \begin{equation}
+                    g_i  = 1 - y_i \sum_j{y_j \alpha_j K_{ij}} \quad \text{and} \quad H_{ij} = y_i y_j K_{ij}
+                    \end{equation}
+
+                    Hence $\lambda^* = \max \left(0, \min \left(\lambda^{\max}, \lambda^+ \right)\right) = \max \left(0, \min \left(\lambda^{\max}, \cfrac{\mathbf{g}^T \mathbf{u}}{\mathbf{u}^T \mathbf{H} \mathbf{u}} \right)\right)$.
+
+                   <!--  The <i>Modified Gradient Projection</i> method further restrict the choice of the successive search directions $\mathbf{u}$ to conjugate successive search directions  -->
+
+                    <!-- <br><br>
+                    I won't go into details on the way to select the working sets is the maximum violating pair scheme, which is discussed in Section 7.2 in <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> (from L. Bottou & C. Lin). -->
+                    </p>
+
+                    <h3>Implementation</h3>
+
+                    From a Python's class point of view, an SVM model can be represented via the following attributes and methods:
+                    <script src="https://gist.github.com/emilemathieu/c8873e7a3f1aca7d123bea7bc9305627.js"></script>
+
+                    Then the <b>_compute_weights</b> method is implemented using the SMO algorithm described above:
                     <script src="https://gist.github.com/emilemathieu/10f0b4a596c5ad571d8356f426b128a9.js"></script>
 
                     <!-- kernel trick; different kernels can be used such as the classic ones below -->
@@ -223,8 +305,20 @@
                     <!-- <h3>Demonstration</h3> -->
 
 
+                    <br><br>
+                    <h2>Demonstration</h2>
+                    We demonstrate this algorithm on a synthetic dataset drawn from a two dimensional standard normal distribution.
+                    Running the <a href="https://github.com/emilemathieu/blog_svm/blob/master/code/example.py">example script</a> will generate the synthetic dataset, then train a kernel SVM via the SMO algorithm and eventually plot the predicted categories.
 
-                    <h2>Discussion</h2>
+                    <div class="image captioned row 100% special">
+                            <div class="6u 6u$(medium)"><span class="image captioned fit"><img src="Images/blog/svm/plot1.pdf" alt=""></span></div>
+                            <div class="6u 6u$(medium)"><span class="image captioned fit"><img src="Images/blog/svm/plot2.pdf" alt=""></span></div>
+                            <div class="12u"><h5>Optimal hyperplane with predicted labels for radial basis (left) and linear (right) kernel SVMs.</h5></div>
+                        </div>
+
+                    <p>
+                    The material and code is available on <a href="https://github.com/emilemathieu/ImageClassificationChallenge/tree/master/code/mllib/svm" target="_blank" >my github page</a>. I hope you enjoyed that tutorial !
+                    </p>
                     <p>
                         <div class="social"">
                             <span class="twitter">
