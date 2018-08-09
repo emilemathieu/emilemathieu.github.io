@@ -215,7 +215,7 @@
                     \end{equation} 
 
                     with $\{\alpha_i\}_{i=1,\dots,n}$ being the dual coefficients to solve and $\mathbf{K}$ being the kernel associated with $\phi$: $\forall i,j \ \ \mathbf{K}(\x_i, \x_j)=\left< \phi(\x_i) , \phi(\x_j)\right>$. That problem is much easier to solve since the constraints are much simpler.
-                    Then, the direction $\w^*$ of the optimal hyperplane is recovered from a solution $\alpha^*$ of the dual optimisation problem (\ref{eq:soft_dual}-\ref{eq:soft_dual_cons}):
+                    Then, the direction $\w^*$ of the optimal hyperplane is recovered from a solution $\alpha^*$ of the dual optimisation problem (\ref{eq:soft_dual}-\ref{eq:soft_dual_cons}) (by forming the Lagragian and taking its minimum w.r.t. $\w$ - which is a strongly convex function):
                     \begin{equation}
                     \w^* = \sum_{i} \alpha^*_i y_i \phi(\x_i)
                     \end{equation}
