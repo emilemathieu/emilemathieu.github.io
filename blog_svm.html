@@ -143,7 +143,7 @@
                     <a href="https://en.wikipedia.org/wiki/Support_vector_machine" target="_blank" >Support vector machines</a> (SVMs) are supervised learning models for classification (or regression) defined by <i>supporting hyperplanes</i>.
                     SVM is one of the most widely used algorithms since it relies on strong theoretical foundations and has good performance in practice.
                     <br><br>
-                     As illustrated on Figure 1, SVMs represent examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on which side of the gap they fall.
+                     As illustrated on Figure 1, SVMs represent examples as points in space, mapped so that the examples of the different categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and assigned a category based on which side of the gap they fall.
                     <!-- This hyperplane is optimal in the sense that if the data is separable, it is the one with the maximum margin as shown on the Figure 1. -->
                     <br><br>
                     Let's consider a dataset
@@ -160,11 +160,11 @@
                      \begin{equation} \label{eq:hard_conditions}
                     \text{subject to} \  \forall i \ \ y_i(\w^T \phi(\x_i)+b) \ge 1
                     \end{equation}
-                    The conditions (\ref{eq:hard_conditions}) enforce that datapoints (after being mapped through $\phi$) from the first (respectively second) category lie below (respectively above) the hyperplane $\w^*$, while the objective (\ref{eq:hard_objective}) minimises the <i>margin</i> (the distance between the hyperplane $\w^*$ and the closest example).
+                    The conditions (\ref{eq:hard_conditions}) enforce that datapoints (after being mapped through $\phi$) from the first (respectively second) category lie below (respectively above) the hyperplane $\w^*$, while the objective (\ref{eq:hard_objective}) maximises the <i>margin</i> (the distance between the hyperplane $\w^*$ and the closest example).
                     </p>
                     <h3> Soft margin</h3>
                     <p>
-                    We implicitly made the assumption that the dataset $D$ was <i>separable</i> which means what it intuitively means - that there exists an hyperplane $\w^* \in \mathbb{R}^d$ such that all red points  (i.e. $y=-1)$ lie on one side of the hyperplane (i.e. $\w^T \phi(\x_i)+b \le 0$) and blue points (y=$+1)$ lie on the other side of the hyperplane (i.e. $\w^T \phi(\x_i)+b \ge 0$).
+                    We implicitly made the assumption that the dataset $D$ was <i>separable</i>: that there exists an hyperplane $\w^* \in \mathbb{R}^d$ such that all red points  (i.e. $y=-1)$ lie on one side of the hyperplane (i.e. $\w^T \phi(\x_i)+b \le 0$) and blue points (y=$+1)$ lie on the other side of the hyperplane (i.e. $\w^T \phi(\x_i)+b \ge 0$).
                     This formulation is called <i>hard margin</i>, since the margin cannot let some datapoints <i>go through</i> (all datapoints are well classified).
                     <br>This assumption can be relaxed by introducing positive slack variables $\mathbf{\xi}=(\xi_1, \dots, \xi_n)$
                     allowing some examples to violate the margin constraints (\ref{eq:hard_conditions}).
@@ -209,19 +209,25 @@
                     \begin{equation} \label{eq:soft_dual}
                     \max _{\alpha} \mathcal{D}(\alpha) = \sum_{i=1}^n \alpha_i - \cfrac{1}{2} \sum_{i,j=1}^n y_i \alpha_i y_j \alpha_j \mathbf{K}(\x_i, \x_j) \\
                     \end{equation}  
-                    \begin{equation} 
+                    \begin{equation}  \label{eq:soft_dual_cons}
                     \text{subject to} \begin{cases} \forall i \quad 0 \le \alpha_i \le C \\
                     \sum_i y_i\alpha_i = 0 \end{cases}
                     \end{equation} 
 
                     with $\{\alpha_i\}_{i=1,\dots,n}$ being the dual coefficients to solve and $\mathbf{K}$ being the kernel associated with $\phi$: $\forall i,j \ \ \mathbf{K}(\x_i, \x_j)=\left< \phi(\x_i) , \phi(\x_j)\right>$. That problem is much easier to solve since the constraints are much simpler.
-                    Then, the direction $\w^*$ of the optimal hyperplane is recovered from a solution $\alpha^*$ of the dual optimisation problem (\ref{eq:soft_dual}):
+                    Then, the direction $\w^*$ of the optimal hyperplane is recovered from a solution $\alpha^*$ of the dual optimisation problem (\ref{eq:soft_dual}-\ref{eq:soft_dual_cons}):
                     \begin{equation}
                     \w^* = \sum_{i} \alpha^*_i y_i \phi(\x_i)
                     \end{equation}
 
-                    The optimal hyperplane is therefore a weighted combination over the datapoints with non-zero dual coefficient $\alpha^*_i$. Those datapoints are therefore called <i>support vectors</i>, hence <i>«support vector machines»</i>.
+                    The optimal hyperplane is therefore a weighted combination over the datapoints with non-zero dual coefficient $\alpha^*_i$. Those datapoints are therefore called <i>support vectors</i>, hence <i>«support vector machines»</i>. This property is quite elegant and really useful since in practice only a few $\alpha^*_i$ are non-zeros. Hence, a new datapoint prediction only requires to evaluate:
+
+                    \begin{equation}
+                    \text{sign}(\w^*^T \phi(\x)+b) = \text{sign}(\sum_{i} \alpha^*_i y_i \phi(\x_i)^T\phi(\x) +b)
+                    = \text{sign}(\sum_{i} \alpha^*_i y_i \mathbf{K}(\x_i, \x) +b)
+                    \end{equation}
                     </p>
+
                     <h3>Quadratic Problem solver</h3>
                     <p>
                     The SVM optimisation problem (\ref{eq:soft_dual}) is a Quadratic Problem (QP), a well studied class of optimisation problems for which  good libraries has been developed for.
@@ -236,7 +242,7 @@
                     <h3>The Sequential Minimal Optimisation (SMO) algorithm</h3>
                     <p>
                     One way to avoid the inconveniences above-mentioned is to rely on the decomposition method.
-                    The idea is to decompose the optimisation problem in a sequence of subproblems where only a subset of coefficients $\alpha_i$, $i \in \mathcal{B}$ need to be optimised, while leaving the remaining coefficients $\alpha_j$, $j \notin \mathcal{B}$ unchanged:
+                    The idea is to decompose the optimisation problem in a sequence of subproblems where only a subset of coefficients $\alpha_i$, $i \in \mathcal{B}$ needs to be optimised, while leaving the remaining coefficients $\alpha_j$, $j \notin \mathcal{B}$ unchanged:
 
                     \begin{equation} \label{eq:smo}
                     \max _{\alpha'} \mathcal{D}(\alpha') = \sum_{i=1}^n \alpha'_i - \cfrac{1}{2} \sum_{i,j=1}^n y_i \alpha'_i y_j \alpha'_j \mathbf{K}(\x_i, \x_j) \\
@@ -254,14 +260,14 @@
                     \sum_i y_i\alpha'_i = 0 \end{cases}
                     \end{equation} -->
 
-                    One need to decide how to choose the working set $\mathcal{B}$ for each subproblem. The simplest is to always use the smallest possible working set size, that is, two elements (such as the <i>maximum violating pair scheme</i>, which is discussed in Section 7.2 in <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> ). The equality constraint $\sum_i y_i \alpha'_i = 0$ then makes this a <i>one dimensional</i> optimisation problem.
+                    One need to decide how to choose the working set $\mathcal{B}$ for each subproblem. The simplest is to always use the smallest possible working set, that is, two elements (such as the <i>maximum violating pair scheme</i>, which is discussed in Section 7.2 in <a href="http://leon.bottou.org/publications/pdf/lin-2006.pdf" target="_blank" >Support Vector Machine Solvers</a> ). The equality constraint $\sum_i y_i \alpha'_i = 0$ then makes this a <i>one dimensional</i> optimisation problem.
 
                     <br><br>
                     <div><span class="image captioned right" style="max-width:450px"><img src="Images/blog/svm/directon_search.png" alt=""><h5>Figure 2: <i>Direction search - from L. Bottou & C-J. Lin.</i></h5></span></div>
                     The subproblem optimisation can then be achieved by performing successive <i>direction searches</i> along well chosen successive directions.
                     Such a method seeks to maximizes an optimisation problem restricted to the half line ${\mathbf{\alpha} + \lambda \mathbf{u}, \lambda \in \Lambda}$, with $\mathbf{u} = (u_1,\dots,u_n)$ a <i>feasible direction</i> (i.e. can slightly move the point $\mathbf{\alpha}$ along direction $\mathbf{u}$ without violating the constraints).
 
-                    <br>@
+                    <br>
                     The equality constraint (\ref{eq:smo}) restricts $\mathbf{u}$ to the linear subspace $\sum_i y_i u_i = 0$.
                     Each subproblem is therefore solved by performing a search along a direction $\mathbf{u}$ containing only two non zero coefficients: ${u}_i = y_i$ and ${u}_j = −y_j$.
                     
@@ -309,8 +315,10 @@
 
                     <br><br>
                     <h2>Demonstration</h2>
+                    <p>
                     We demonstrate this algorithm on a synthetic dataset drawn from a two dimensional standard normal distribution.
                     Running the <a href="https://github.com/emilemathieu/blog_svm/blob/master/code/example.py">example script</a> will generate the synthetic dataset, then train a kernel SVM via the SMO algorithm and eventually plot the predicted categories.
+                    </p>
 
                     <div class="image captioned row 100% special">
                             <div class="6u 6u$(medium)"><span class="image captioned fit"><img src="Images/blog/svm/plot1.pdf" alt=""></span></div>
