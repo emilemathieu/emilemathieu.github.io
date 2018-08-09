@@ -223,8 +223,8 @@
                     The optimal hyperplane is therefore a weighted combination over the datapoints with non-zero dual coefficient $\alpha^*_i$. Those datapoints are therefore called <i>support vectors</i>, hence <i>«support vector machines»</i>. This property is quite elegant and really useful since in practice only a few $\alpha^*_i$ are non-zeros. Hence, a new datapoint prediction only requires to evaluate:
 
                     \begin{equation}
-                    \text{sign}(\w^*^T \phi(\x)+b) = \text{sign}(\sum_{i} \alpha^*_i y_i \phi(\x_i)^T\phi(\x) +b)
-                    = \text{sign}(\sum_{i} \alpha^*_i y_i \mathbf{K}(\x_i, \x) +b)
+                    \text{sign}\left(\w^{*T} \phi(\x)+b\right) = \text{sign}\left(\sum_{i} \alpha^*_i y_i \phi(\x_i)^T\phi(\mathbf{x}) +b\right)
+                    = \text{sign}\left(\sum_{i} \alpha^*_i y_i \mathbf{K}(\mathbf{x}_i, \mathbf{x}) +b \right)
                     \end{equation}
                     </p>
 
