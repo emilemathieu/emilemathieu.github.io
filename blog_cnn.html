@@ -154,20 +154,23 @@
                     The idea is to build neural networks in a hierarchical and factored way by leveraging the modularity of so-called <i>modules</i>.
                     <br>
                     From a mathematical perspective a <i>module</i> is a differentiable function. It can  have parameters to be learned and then needs to also be differentiable with respect to these parameters.
-                    From a programmatic perspective, it is a class implementing a <b>forward</b> method $f(\mathbf{x})$ and a <b>backward</b> method $g(\nabla\mathbf{y})$. If it has parameters $\theta$ that we wish to learn, it additionally needs these parameters as <b>attributes</b>, a <b>step</b> method that performs an optimisation step on $\theta$ when called, and the <b>backward</b> method to also compute and save $\nabla_{\theta} \ \nabla\mathbf{y}$ before returning $g(\nabla\mathbf{y})$.
+                    From a programmatic perspective, it is a class implementing a <b>forward</b> method $\mathbf{y} = f(\mathbf{x})$ (input $\mathbf{x}$, output $\mathbf{y}$) and a <b>backward</b> method $g(\mathbf{x}, \nabla\mathbf{y}) = \nabla_{\mathbf{x}} \ f(\mathbf{x}) \times \nabla \mathbf{y}$. If it has parameters $\theta$ that we wish to learn, it additionally needs these parameters as <b>attributes</b>, a <b>step</b> method that performs an optimisation step on $\theta$ when called, and the <b>backward</b> method to also compute and save $\nabla_{\theta} f_\theta(\mathbf{x}) \times \nabla\mathbf{y}$ before returning $g(\mathbf{x}, \nabla\mathbf{y})$.
                     Below is the abstract <b>Module</b> class that will be inherited.
                     </p>
 
                     <script src="https://gist.github.com/emilemathieu/f640d0a7d368196f39f25202b1f95d6d.js"></script>
+
+                    <p>This design enables to build small blocks of layers than can then be assembled to build bigger blocks and so on. Factoring code in this manner reduces the number of lines needed to defined a model and eases experimentation of new architectures.
+                    </p>
 
                     <br>
                     <h3>Layers</h3>
                     <p>
                     Layers are the basic functions composing neural networks.
                     They will be implemented by inheriting the abstract <b>Module</b> class.
-                    For instance, a <i>linear layer</i> is parametrised by a weight $\mathbf{A}$ and a bias $\mathbf{b}$, and defined by the forward function $f(\mathbf{x}) = \mathbf{A} \mathbf{x} + \mathbf{b}$, the backward function $g(\nabla \mathbf{y}) = \mathbf{A} \nabla \mathbf{y}$ and its weight and bias partial derivatives 
-                    $\nabla_{\mathbf{b}} \ f(\mathbf{x}) = 1_n$
-                    and $\nabla_{\mathbf{A}} \ f(\mathbf{x}) = \mathbf{x}$.
+                    For instance, a <i>linear layer</i> is parametrised by a weight $\mathbf{A}$ and a bias $\mathbf{b}$, and defined by the <b>forward</b> function $f(\mathbf{x}) = \mathbf{A} \mathbf{x} + \mathbf{b}$, the <b>backward</b> function $g(\mathbf{x}, \nabla\mathbf{y}) = \nabla_{\mathbf{x}} \ f(\mathbf{x}) \times \nabla \mathbf{y} = \mathbf{A} \nabla \mathbf{y}$ and its weight and bias partial derivatives 
+                    $\nabla_{\mathbf{b}} \ f_{\mathbf{A},\mathbf{b}}(\mathbf{x}) \times \nabla\mathbf{y} = 1^T \nabla\mathbf{y}$
+                    and $\nabla_{\mathbf{A}} \ f_{\mathbf{A},\mathbf{b}}(\mathbf{x}) \times \nabla\mathbf{y} = \nabla\mathbf{y}^T \mathbf{x}$.
                     </p>
                     <script src="https://gist.github.com/emilemathieu/87938f3e9e9acd00372dc7224a832574.js"></script>
 
@@ -175,14 +178,14 @@
                     <h3>Training</h3>
                     <p>
                    Neural networks can be trained via <i>back-propagation</i> which is the application of the <a href="https://en.wikipedia.org/wiki/Chain_rule"><i>chain rule</i></a> to the loss's gradient up to the neural net's layers parameters.
-                    For easiness, we restrict ourselves to neural nets that can be represented as a composition of functions $f(x) = f_n \circ \dots \circ f_1(x)$. It enables to represent explicitly the dependency between layers via a list. Some networks like <a href="https://arxiv.org/abs/1512.03385">ResNets</a> are excluded by this assumption since they need the network to be represented as a DAG, but it's all right for our purpose.
+                    For easiness, we restrict ourselves to neural nets that can be represented as a composition of functions $f(\mathbf{x}) = f_n \circ \dots \circ f_1(\mathbf{x})$. It enables to represent explicitly the dependency between layers via a list. Some networks like <a href="https://arxiv.org/abs/1512.03385">ResNets</a> are excluded by this assumption since they need the network to be represented as a DAG, but it's all right for our purpose.
                     <br><br>
                     Such composition of functions are implemented via a <b>Sequential</b> class constructed with a list of sub-modules. Then its <b>forward</b> method calls each sub-module's <b>forward</b> method, its <b>backward</b> calls in <i>reverse</i> order each sub-module's <b>backward</b> method, and its <b>step</b> method calls each trainable (having parameters to learn) sub-module's <b>step</b> method.
                     </p>
                     <script src="https://gist.github.com/emilemathieu/97dc38a4c0f8a4d66393c19d73df24b2.js"></script>
 
                     <p>
-                        The network is trained so as to minimise a user-defined loss $L(\mathbf{X}, \mathbf{y}, \theta) = \sum_{i \in B} l(f_{\theta}(\mathbf{x}_i), y_i)$. The <i>cross entropy</i> is for instance widely used for classification tasks.
+                        The network is trained so as to minimise a user-defined loss $L(\mathbf{X}, \mathbf{y}^{\text{true}}, \theta) = \sum_{i} l(f_{\theta}(\mathbf{x}_i), y{\text{true}}_i)$. The <i>cross entropy</i> is for instance widely used for classification tasks.
                     </p>
                     <script src="https://gist.github.com/emilemathieu/1873f05800df51927a1d7e4dbb330b32.js"></script>
 
@@ -239,6 +242,8 @@
                     <b>GPU support</b> is also really important for large scale training.
                     </p>
                     
+                    <h3>Acknowledgments</h3>
+                    <p>I’m grateful to Thomas Pesneau and Yuan Zhou for their comments.</p>
 
 <!-- Share buttons UI -->
 <style type="text/css">
